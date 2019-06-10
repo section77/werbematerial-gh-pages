@@ -8,7 +8,7 @@ import Effect.Console (log)
 import Foreign.Generic (encodeJSON)
 import Indexer.File (File(..))
 import Indexer.MTime (MTime(..))
-import ItemFactory as ItemFactory
+import Items as Items
 import Node.Encoding as Encoding
 import Node.FS.Stats (Stats(..), isFile, modifiedTime)
 import Node.FS.Sync as FS
@@ -37,7 +37,7 @@ writeDirListingFile fp dir = do
 writeItemsFile :: FilePath -> Dir -> Effect Unit
 writeItemsFile fp dir = do
   log $ "write items listing to: " <> fp
-  FS.writeTextFile Encoding.UTF8 fp $ encodeJSON $ ItemFactory.fromDir dir
+  FS.writeTextFile Encoding.UTF8 fp $ encodeJSON $ Items.fromDir dir
 
 
 ls :: FilePath -> Effect Dir

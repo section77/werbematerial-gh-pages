@@ -2,20 +2,24 @@ module WebApp.Gallery where
 
 import Prelude
 
-import WebApp.Gallery.Card (card)
-import WebApp.Gallery.Frame (frame)
-import WebApp.Gallery.ZoomSlider (zoomSlider)
+import Data.Map as M
 import Data.Maybe (Maybe(..))
+import Data.Newtype (unwrap)
+import Data.Tuple (Tuple(..))
 import Effect.Uncurried (mkEffectFn1)
 import Item (Item)
+import Items (Items)
 import React.Basic (JSX, createComponent, make)
 import React.Basic as React
 import React.Basic.DOM as R
 import React.Basic.DOM.Events (capture_)
+import WebApp.Gallery.Card (card)
+import WebApp.Gallery.Frame (frame)
+import WebApp.Gallery.ZoomSlider (zoomSlider)
 
 
 type Props =
-  { items :: Array Item }
+  { items :: Items }
 
 type State =
   { cellSize :: Int
@@ -39,9 +43,27 @@ gallery = make (createComponent "Gallery") { initialState, render }
       , frame { showFrame: self.state.showFrame
               , onClick: capture_ $ self.setState \s -> s { showFrame = Nothing }
               }
-      , R.div_ $ map (\item -> card { item
-                                   , size: self.state.cellSize
-                                   , onClick: capture_ $ self.setState \s -> s { showFrame = Just item }
-                                   }) self.props.items
+      , renderItems self self.props.items
       ]
+
+
+
+renderItems :: Self -> Items -> JSX
+renderItems self = R.div_ <<< map render <<< M.toUnfoldable <<< unwrap
+  where
+    render (Tuple dirname items) =
+      R.div
+      { style: R.css { display: "flow-root", borderTop: "1px solid black", marginTop: "20px" }
+      , children: [
+           R.div
+           { style: R.css { fontSize: "x-large", textTransform: "capitalize" }
+           , children: [R.text dirname]
+           }
+           , R.div_ $ map (\item ->
+                            card { item
+                                 , size: self.state.cellSize
+                                 , onClick: capture_ $ self.setState \s -> s { showFrame = Just item }
+                                 }) items
+           ]
+      }
 

@@ -27,7 +27,8 @@ zoomSlider = makeStateless (createComponent "ZoomSlider") render
       R.div
       { style: R.css { width: "100%" }
       , children:
-        [ R.text <<< show <<< round $ (100.0 / toNumber (props.max - props.min) * toNumber (props.value - props.min))
+        [ R.text "Zoom: "
+        , R.text <<< show <<< round $ (100.0 / toNumber (props.max - props.min) * toNumber (props.value - props.min))
         , R.text "%"
         , R.input
            { type: "range"
