@@ -1,5 +1,7 @@
 { pkgs ? import <nixpkgs> { }, purs ? "v0.12.5"
-, ps-package-sets ? "psc-0.12.5-20190525" }:
+, ps-package-sets ? "psc-0.12.5-20190525"
+, public-url ? "/"
+ }:
 let
 
   easy-ps = pkgs.callPackage ./nix/easy-ps.nix { };
@@ -67,7 +69,7 @@ else {
     cp ${werbematerial-gh-pages.src}/index.html .
     cp ${werbematerial-gh-pages.src}/webapp.js .
 
-    parcel build --out-dir $out index.html
+    parcel build --public-url ${public-url} --out-dir $out index.html
   '';
 
   indexer = pkgs.runCommand "werbematerial-gh-pages-indexer" {
