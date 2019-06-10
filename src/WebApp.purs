@@ -30,7 +30,7 @@ main = do
   case root of
     Nothing -> throw "root element in html site not found"
     Just root' -> launchAff_ $ do
-      res <- AX.get ResponseFormat.string "/items.json"
+      res <- AX.get ResponseFormat.string "items.json"
       liftEffect $ case res.body of
         Left err -> log $ printResponseFormatError  err
         Right str -> case runExcept $ decodeJSON str of
