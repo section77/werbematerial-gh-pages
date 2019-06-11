@@ -5,8 +5,8 @@ nix: 2.2.2
 script:
   - nix-env -iA cachix -f https://cachix.org/api/v1/install
   - cachix use j-keck
-  - nix-build --public-url "/werbematerial" -A webapp  -o result-webapp
-  - nix-build --public-url "/werbematerial" -A indexer -o result-indexer
+  - nix-build --argstr public-url "/werbematerial" -A webapp  -o result-webapp
+  - nix-build --argstr public-url "/werbematerial" -A indexer -o result-indexer
 
 after_success:
   - cachix push j-keck ./result-webapp
