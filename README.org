@@ -1,3 +1,82 @@
-* Werbematerial Gallery
+* Web Gallerie für unser Werbematerial
 
-work in progress ...
+/work in progress …/
+
+Unser Werbematerial liegt unter [[https://github.com/section77/werbematerial][section77/werbematerial]].
+Die Gallerie auf [[https://section77.github.io/werbematerial/]] wird aus diesem Projekt gebaut.
+
+*werbematerial-gh-pages* ist in [[http://www.purescript.org/][Purescript]] implementiert, welches zu JavaScript kompiliert.
+
+Es besteht zwei "/Programmen/":
+
+** Indexer
+
+Der *Indexer* ist eine /nodejs app/, welche aus einem gegebenen Verzeichnis einen
+Index für die *WebApp* erstellt.
+
+Dabei werden Dateien
+
+  - welche sich nur in der Erweiterung unterscheiden als ein *Item* zusammengefasst
+  - mit dem Prefix 'gh-pages-preview-<NAME>' beginnen als Vorschaubild verwendet
+
+
+**** Beispiel
+
+ Aus folgende Verzeichnisstruktur
+
+  #+BEGIN_EXAMPLE
+  j@main: tree result/
+  result/
+  ├── bilder
+  │   ├── blue-pill.jpg
+  │   ├── eggbot.jpg
+  │   ├── gh-pages-preview-blue-pill.jpg
+  │   ├── gh-pages-preview-eggbot.jpg
+  │   ...
+  ├── logo
+  │   ├── gh-pages-preview-section77.png
+  │   ├── section77.pdf
+  │   ├── section77.png
+  │   └── section77.svg
+  │   ...
+  #+END_EXAMPLE
+
+ baut der *Indexer* folgenden ~items.json~ Index auf:
+
+ #+BEGIN_EXAMPLE
+ {
+   "bilder": [
+     { "name": "blue-pill",
+       "previewImage": { "name": "gh-pages-preview-blue-pill.jpg", ... },
+       "files": [
+         { "name": "blue-pill.jpg", ... }
+       ]
+     },
+     {
+       "name": "eggbot",
+       "previewImage": { "name": "gh-pages-preview-eggbot.jpg", ... },
+       "files": [
+         { "name": "eggbot.jpg", ... }
+       ]
+     }
+   ],...
+   "logo": [
+     { "name": "section77",
+       "previewImage": { "name": "gh-pages-preview-section77.png", ... }
+       "files": [
+         { "name": "section77.pdf", ... },
+         { "name": "section77.png", ... },
+         { "name": "section77.svg", ... }
+       ]
+     }
+   ], ...
+ }
+ #+END_EXAMPLE
+
+
+** WebApp
+
+Die *WebApp* ist eine /Browser app/ und lädt vom Webserver die ~items.json~ Datei aus der die Gallerie gebaut wird.
+
+
+Mit diesem Setup brauchen wir für die Bildergallerie kein spezielles Backend, und wir können einfach GitHub Pages verwenden.
