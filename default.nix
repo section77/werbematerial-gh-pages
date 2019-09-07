@@ -8,7 +8,7 @@
            sha256 = "18myjqws6mm4xsx4nx348yix793wyk76dyklls6dgyp9rg0gfcma";
          }) {})
 , ps-package-sets ? "psc-0.13.3"
-, ps-package-sets-sha256 ? "15islja5761d7w1k1gaj6xj0pzgs306qrxxyqh6ppw6569vq3y3p"
+, ps-package-sets-sha256 ? "1jkpvq8l39cg4n759yd1yzs21m641alz6vpq6g9l2l8g85ysdbd2"
 , public-url ? "/"
  }:
 let
