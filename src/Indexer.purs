@@ -1,12 +1,12 @@
 module Indexer where
 
-import Indexer.Dir
+import Prelude
 
 import Data.Traversable (traverse)
 import Effect (Effect)
 import Effect.Console (log)
 import Foreign.Generic (encodeJSON)
-import Indexer.File (File(..))
+import Indexer.FSEntry (FSEntry(..))
 import Indexer.MTime (MTime(..))
 import Items as Items
 import Node.Encoding as Encoding
@@ -15,7 +15,7 @@ import Node.FS.Sync as FS
 import Node.Path (FilePath)
 import Node.Path as Path
 import Node.Process (argv)
-import Prelude (Unit, bind, discard, flip, pure, ($), (<$>), (<>), (>>=))
+
 
 main :: Effect Unit
 main = do
@@ -28,30 +28,31 @@ main = do
     _ -> log "usage: indexer.js <src directory> <out directory>"
 
 
-writeDirListingFile :: FilePath -> Dir -> Effect Unit
+writeDirListingFile :: FilePath -> FSEntry -> Effect Unit
 writeDirListingFile fp dir = do
   log $ "write directory listing to: " <> fp
   FS.writeTextFile Encoding.UTF8 fp $ encodeJSON dir
 
 
-writeItemsFile :: FilePath -> Dir -> Effect Unit
+writeItemsFile :: FilePath -> FSEntry -> Effect Unit
 writeItemsFile fp dir = do
   log $ "write items listing to: " <> fp
-  FS.writeTextFile Encoding.UTF8 fp $ encodeJSON $ Items.fromDir dir
+  FS.writeTextFile Encoding.UTF8 fp $ encodeJSON $ Items.fromFSEntry dir
 
 
-ls :: FilePath -> Effect Dir
-ls = flip walk "./"
+ls :: FilePath -> Effect FSEntry
+ls path = walk path ""
   where
     walk absPath relPath = FS.readdir absPath >>= mkDir
 
       where
-        mkDir files = (\c -> Dir {name: Path.basename absPath, dirname: relPath, content: c }) <$> traverse mkEntry files
-        mkEntry name = do
-          stats <- FS.stat $ Path.concat [absPath, name]
+        mkDir = map (\c -> Dir {basename: Path.basename relPath, dirname: Path.dirname relPath, content: c }) <<< traverse mkFSEntry
+
+        mkFSEntry :: String -> Effect FSEntry
+        mkFSEntry basename = do
+          stats <- FS.stat $ Path.concat [absPath, basename]
           if (isFile stats) then
             let mtime = MTime $ modifiedTime stats
                 Stats { size } = stats
-            in pure $ FileEntry $ File { name, dirname: relPath, mtime, size}
-            else
-            DirEntry <$> walk (Path.concat [absPath, name]) (Path.concat [relPath, name])
+            in pure $ File { basename, dirname: relPath, mtime, size}
+            else walk (Path.concat [absPath, basename]) (Path.concat [relPath, basename])

@@ -2,7 +2,7 @@
 import (pkgs.fetchFromGitHub {
   owner = "justinwoo";
   repo = "easy-purescript-nix";
-  rev = "c76bf87dd66a98127569bb563f49b01cdb7204b0";
-  sha256 = "15kni4di02y2kk89x4zsjyr42bhc2h1n9qx3xbwlmmsbhi5d6lz4";
-})
+  rev = "a3b1c569a0c483fc3179762633fba804f604416c";
+  sha256 = "10ncghljr1bdcxwr53mn0knnjpnp4g42zgnij214l5nj8mj631a4";
+}) { inherit pkgs; }
 

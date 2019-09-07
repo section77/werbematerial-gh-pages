@@ -1,6 +1,5 @@
 module WebApp where
 
-
 import Affjax (printResponseFormatError)
 import Affjax as AX
 import Affjax.ResponseFormat as ResponseFormat
@@ -35,7 +34,4 @@ main = do
         Left err -> log $ printResponseFormatError  err
         Right str -> case runExcept $ decodeJSON str of
           Left err -> log $ renderForeignError $ LNE.head err
-          Right items -> render (app items) root'
-
-
-
+          Right items -> render (app { items: items}) root'
