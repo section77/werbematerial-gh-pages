@@ -11,3 +11,8 @@ script:
 after_success:
   - cachix push j-keck ./result-webapp
   - cachix push j-keck ./result-indexer
+
+
+cache:
+  directories:
+    - /nix/store
