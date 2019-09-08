@@ -1,6 +1,6 @@
 language: nix
 
-nix: 2.2.2
+nix: 2.2.1
 
 script:
   - nix-env -iA cachix -f https://cachix.org/api/v1/install
