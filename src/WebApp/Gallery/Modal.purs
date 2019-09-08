@@ -15,7 +15,7 @@ import React.Basic.DOM as R
 import React.Basic.DOM.Events (capture_)
 import React.Basic.Events (EventHandler)
 import Web.HTML (window)
-import Web.HTML.Location (origin)
+import Web.HTML.Location (origin, pathname)
 import Web.HTML.Window (location)
 import WebApp.Gallery.Clipboard (copyToClipboard)
 
@@ -88,8 +88,10 @@ modal = make (createComponent "Modal") { initialState, didUpdate, render }
                   , href: "#"
                   , title: "Copy link to clipboard"
                   , onClick: capture_ $ do
-                      origin <- window >>= location >>= origin
-                      void $ copyToClipboard (origin <> "/" <> path)
+                      base <- do
+                        loc <- window >>= location
+                        (<>) <$> origin loc <*> pathname loc
+                      void $ copyToClipboard (base <> path)
                       self.setState _ { copyLinkImg = "done" }
                   , children: [ R.i { className: "material-icons", children: [R.text self.state.copyLinkImg ] } ]
                   }
