@@ -5,7 +5,7 @@ import Prelude
 
 import Data.Maybe (fromJust, maybe)
 import Effect (Effect)
-import Effect.Uncurried (EffectFn1, EffectFn2, runEffectFn1, runEffectFn2)
+import Effect.Uncurried (EffectFn2, runEffectFn2)
 import Partial.Unsafe (unsafePartial)
 import Web.DOM (Element)
 import Web.DOM.Document (createElement)

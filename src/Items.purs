@@ -8,7 +8,6 @@ import Data.Array.NonEmpty as ANE
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..), fromJust)
-import Data.String as S
 import Data.String.Regex (test) as SR
 import Data.String.Regex.Flags (noFlags) as SR
 import Data.String.Regex.Unsafe (unsafeRegex) as SR
