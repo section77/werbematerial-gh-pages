@@ -1,4 +1,10 @@
-{ pkgs ? (import (builtins.fetchTarball {
+{ ps-package-sets ? "psc-0.13.3"
+, ps-package-sets-sha256 ? "1jkpvq8l39cg4n759yd1yzs21m641alz6vpq6g9l2l8g85ysdbd2"
+, public-url ? "/"
+ }:
+let
+
+  pkgs = import (builtins.fetchTarball {
            name = "nixos-unstable";
 
            # git ls-remote https://github.com/nixos/nixpkgs-channels nixos-unstable
@@ -6,12 +12,7 @@
 
            # nix-prefetch-url --unpack https://github.com/nixos/nixpkgs/archive/7d5375ebf4cd417465327d7ab453687fd19663c9.tar.gz
            sha256 = "18myjqws6mm4xsx4nx348yix793wyk76dyklls6dgyp9rg0gfcma";
-         }) {})
-, ps-package-sets ? "psc-0.13.3"
-, ps-package-sets-sha256 ? "1jkpvq8l39cg4n759yd1yzs21m641alz6vpq6g9l2l8g85ysdbd2"
-, public-url ? "/"
- }:
-let
+  }) {};
 
   easy-ps = pkgs.callPackage ./nix/easy-ps.nix { };
 
