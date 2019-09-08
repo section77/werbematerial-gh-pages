@@ -4,13 +4,13 @@ nix: 2.2.1
 
 script:
   - nix-env -iA cachix -f https://cachix.org/api/v1/install
-  - cachix use j-keck
+  - cachix use werbematerial-gh-pages
   - nix-build --argstr public-url "/werbematerial" -A webapp  -o result-webapp
   - nix-build --argstr public-url "/werbematerial" -A indexer -o result-indexer
 
 after_success:
-  - cachix push j-keck ./result-webapp
-  - cachix push j-keck ./result-indexer
+  - cachix push werbematerial-gh-pages ./result-webapp
+  - cachix push werbematerial-gh-pages ./result-indexer
 
 
 cache:
