@@ -1,5 +1,5 @@
-{ ps-package-sets ? "psc-0.13.3"
-, ps-package-sets-sha256 ? "1jkpvq8l39cg4n759yd1yzs21m641alz6vpq6g9l2l8g85ysdbd2"
+{ ps-package-sets ? "psc-013.3-20190831"
+, ps-package-sets-sha256 ? "09lbfygjaq27lri8v1gqn49qxzby4p5hpdzg9050zkwbdvsi44bv"
 , public-url ? "/"
  }:
 let
