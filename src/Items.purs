@@ -5,6 +5,7 @@ import Prelude
 import Data.Array as A
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as ANE
+import Data.Foldable (minimum)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..), fromJust)
@@ -35,7 +36,7 @@ fromFSEntry entry = unsafePartial $ go entry
     go (Dir{basename, dirname, content}) = let path = Path.concat [ dirname, basename ]
                                                {yes: dirs, no: files } = A.partition isDir content
                                                categories = map go dirs
-                                               items = map mkItem $ A.group' files
+                                               items = sortByMtime $ map mkItem $ A.group' files
                                            in Category { label: basename, path, items: A.concat [categories, items]}
 
     mkItem :: Partial => NonEmptyArray FSEntry -> Items
@@ -51,6 +52,8 @@ fromFSEntry entry = unsafePartial $ go entry
     isPreviewImage (File{ basename }) = SR.test (SR.unsafeRegex "^gh-pages-preview-" SR.noFlags) basename
     isPreviewImage _                  = false
 
+    sortByMtime :: Partial => Array Items -> Array Items
+    sortByMtime = A.reverse <<< A.sortWith (\(Item { files }) -> minimum (map _.mtime files))
 
 
 derive instance genericItems :: Generic Items _
