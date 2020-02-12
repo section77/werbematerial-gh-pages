@@ -1,76 +1,71 @@
-{ ps-package-sets ? "psc-0.13.3-20190831"
-, ps-package-sets-sha256 ? "1n9vn5dy14h6vjmla1f01gjai8il4iw3ay6xh8yh84f1p16gxj44"
-, public-url ? "/"
- }:
+{ public-url ? "/" }:
 let
 
-  pkgs = import (builtins.fetchTarball {
-           name = "nixos-unstable";
+  fetchNixpkgs = {rev, sha256}: builtins.fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs-channels/archive/${rev}.tar.gz";
+    inherit sha256;
+  };
 
-           # git ls-remote https://github.com/nixos/nixpkgs-channels nixos-unstable
-           url = "https://github.com/nixos/nixpkgs/archive/7d5375ebf4cd417465327d7ab453687fd19663c9.tar.gz";
-
-           # nix-prefetch-url --unpack https://github.com/nixos/nixpkgs/archive/7d5375ebf4cd417465327d7ab453687fd19663c9.tar.gz
-           sha256 = "18myjqws6mm4xsx4nx348yix793wyk76dyklls6dgyp9rg0gfcma";
+  pkgs = import (fetchNixpkgs {
+    rev = "8a9807f1941d046f120552b879cf54a94fca4b38";
+    sha256 = "0s8gj8b7y1w53ak138f3hw1fvmk40hkpzgww96qrsgf490msk236";
   }) {};
 
-  easy-ps = pkgs.callPackage ./nix/easy-ps.nix { };
+  # nix-prefetch-git https://github.com/justinwoo/easy-purescript-nix
+  easy-ps = import (pkgs.fetchFromGitHub {
+    owner = "justinwoo";
+    repo = "easy-purescript-nix";
+    rev = "a09d4ff6a8e4a8a24b26f111c2a39d9ef7fed720";
+    sha256 = "1iaid67vf8frsqfnw1vm313d50mdws9qg4bavrhfhmgjhcyqmb52";
+  }) { inherit pkgs; };
 
-  purescript = pkgs.callPackage ./nix/purescript.nix { inherit (easy-ps) purs; };
 
-  package-set = purescript.loadPackageSet {
-    url = "https://github.com/purescript/package-sets";
-    rev = ps-package-sets;
-    sha256 = ps-package-sets-sha256;
-  };
+  buildInputs =
+    (with pkgs; [ dhall nodejs utillinux]) ++
+    (with pkgs.nodePackages; [ parcel-bundler node2nix ]) ++
+    (with easy-ps; [ purs spago spago2nix ]);
 
-  werbematerial-gh-pages = purescript.compile {
-    name = "werbematerial-gh-pages";
-    src = pkgs.nix-gitignore.gitignoreSource [] ./. ;
-    srcDirs = ["src"];
+  werbematerial-gh-pages =
+    let
+      # nix-shell --run 'spago2nix generate'
+      app = (import ./spago-packages.nix { inherit pkgs; }).mkBuildProjectOutput {
+        src = pkgs.nix-gitignore.gitignoreSource [] ./.;
+        purs = easy-ps.purs;
+      };
 
-    dependencies = [
-      "affjax"
-      "prelude"
-      "console"
-      "react-basic"
-      "foreign-generic"
-      "foreign-object"
-      "node-fs"
-      "node-process"
-      "test-unit"
-      "debug"
-    ];
+      # nix-shell --run 'node2nix -c node_modules.nix --nodejs-12'
+      node_modules = (import ./node_modules.nix { inherit pkgs; }).package;
 
-    inherit package-set;
-  };
+    in pkgs.stdenv.mkDerivation rec {
+      name = "werbematerial-gh-pages";
+      version = "0.0.0";
+      inherit buildInputs;
+      src = pkgs.symlinkJoin {
+        name = "src";
+        paths = [
+          "${app}"
+          "${node_modules}/lib/node_modules/werbematerial-gh-pages"
+        ];
+      };
+      phases = "buildPhase";
+      buildPhase = ''
+        mkdir -p $out
+        cp -r ${src}/node_modules $out
+        cp ${src}/index.html $out
+        cp ${src}/webapp.js $out
 
-  # to change npm dependencies:
-  #   - edit ./nix/node-modules/node-packages.json
-  #   - run: nix-shell -p nodePackages.node2nix --run 'cd nix/node-modules; node2nix --nodejs-10 -i node-packages.json'
-  #   - add the dependency to the 'paths' array below
-  nodeModules = with (import ./nix/node-modules { });
-  pkgs.symlinkJoin {
-    name = "node-modules";
-    paths = [
-      "${react}/lib/node_modules"
-      "${react}/lib/node_modules/react/node_modules"
-      "${react-dom}/lib/node_modules"
-      "${react-dom}/lib/node_modules/react-dom/node_modules"
-      "${materialize-css}/lib/node_modules"
-      "${cssnano}/lib/node_modules"
-    ];
-  };
+        cp ${src}/indexer.js $out
+
+        cp -r ${src}/output $out
+
+
+        ls -ltr $out
+      '';
+    };
 
 in if pkgs.lib.inNixShell then
   pkgs.mkShell {
-    buildInputs = with pkgs; [
-      easy-ps.purs
-      easy-ps.spago
-      nodejs
-      nodePackages.parcel-bundler
-    ];
-
+    inherit buildInputs;
     shellHooks = ''
       alias serv="parcel serve --host 0.0.0.0 index.html"
     '';
@@ -78,30 +73,17 @@ in if pkgs.lib.inNixShell then
 else {
 
   webapp = pkgs.runCommand "werbematerial-gh-pages-webapp" {
-    buildInputs = [pkgs.nodePackages.parcel-bundler];
+    inherit buildInputs;
   } ''
     mkdir $out
-
-    ln -s ${nodeModules} node_modules
-    ln -s ${werbematerial-gh-pages} output
-
-    cp ${werbematerial-gh-pages.src}/index.html .
-    cp ${werbematerial-gh-pages.src}/webapp.js .
-
-    parcel build --public-url ${public-url} --out-dir $out index.html
+    parcel build --out-dir $out/ --public-url ${public-url} ${werbematerial-gh-pages}/index.html
   '';
 
   indexer = pkgs.runCommand "werbematerial-gh-pages-indexer" rec {
-    buildInputs = [pkgs.nodePackages.parcel-bundler];
+    inherit buildInputs;
   } ''
     mkdir $out
-
-    ln -s ${nodeModules} node_modules
-    ln -s ${werbematerial-gh-pages} output
-
-    cp ${werbematerial-gh-pages.src}/indexer.js .
-
-    parcel build --target node --out-dir $out indexer.js
+    parcel build --target node --out-dir $out ${werbematerial-gh-pages}/indexer.js
 
     cp ${pkgs.writeScript "indexer" ''
       ${pkgs.nodejs}/bin/node ./indexer.js $1 $2

@@ -10,3 +10,5 @@
 /.spago
 /.cache
 /dist/
+.spago2nix
+result*

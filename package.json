@@ -4,5 +4,26 @@
     "materialize-css": "^1.0.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
-  }
+  },
+  "name": "werbematerial-gh-pages",
+  "description": "* Web Gallerie für unser Werbematerial",
+  "version": "0.0.0",
+  "main": "indexer.js",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/section77/werbematerial-gh-pages.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/section77/werbematerial-gh-pages/issues"
+  },
+  "homepage": "https://github.com/section77/werbematerial-gh-pages#readme"
 }
