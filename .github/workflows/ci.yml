@@ -1,0 +1,20 @@
+name: ci
+on:
+  push:
+    branches: [master]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: cachix/install-nix-action@v6
+      - uses: cachix/cachix-action@v3
+        with:
+          name: s77-werbematerial
+          signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+
+      - name: build
+        run: |
+          nix-build --argstr public-url "/werbematerial" -A webapp  -o result-webapp
+          nix-build --argstr public-url "/werbematerial" -A indexer -o result-indexer
